@@ -1,12 +1,16 @@
+package items;
+
 import javafx.util.Pair;
 
 public class Animal {
-    private int verti;
+    private int v;
     private int hori;
+    private String species;
 
-    Animal(int verti, int hori) {
-        this.verti = verti;
+    public Animal(int verti, int hori, String species) {
+        this.v = verti;
         this.hori = hori;
+        this.species = species;
     }
 
     public void move(String updown, String leftright) {
@@ -44,11 +48,15 @@ public class Animal {
     }
 
     public Pair<Integer, Integer> getPlace() {
-        return new Pair<Integer, Integer>(this.verti, this.hori);
+        return new Pair<Integer, Integer>(this.v, this.hori);
     }
 
     public void setPlace(int verti, int hori) {
-        this.verti = verti;
+        this.v = verti;
         this.hori = hori;
+    }
+
+    public String getSpecies() {
+        return this.species;
     }
 }
