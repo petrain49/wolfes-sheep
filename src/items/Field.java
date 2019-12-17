@@ -3,7 +3,7 @@ package items;
 import java.util.*;
 
 public class Field {
-    String[][] field;
+    private String[][] field;
 
     public Field() {
         field = new String[8][8];
@@ -18,7 +18,16 @@ public class Field {
         String[][] field = getField();
         int v = a.getPlace().getKey();
         int h = a.getPlace().getValue();
+
         field[v][h] = a.getSpecies();
+    }
+
+    public void place(Animal a, String sym) {
+        String[][] field = getField();
+        int v = a.getPlace().getKey();
+        int h = a.getPlace().getValue();
+
+        field[v][h] = sym;
     }
 
     public String show() {
@@ -31,6 +40,44 @@ public class Field {
             res.append("\n");
         }
         return res.toString();
+    }
+
+    public void move(Animal a,String updown, String leftright) {
+        place(a, ".");
+
+        int newV = a.getPlace().getKey();
+        int newH = a.getPlace().getValue();
+
+        assert(newV >= 0 && newV < 8);
+        assert(newH >= 0 && newH < 8);
+
+        if (updown.equalsIgnoreCase("up")) {
+            newV--;
+            if (leftright.equalsIgnoreCase("left")) {
+                newH--;
+                a.setPlace(newV, newH);
+            }
+            else if (leftright.equalsIgnoreCase("right")) {
+                newH++;
+                a.setPlace(newV, newH);
+            }
+            else throw new IllegalArgumentException();
+        }
+        else if (updown.equalsIgnoreCase("down")) {
+            newV++;
+            if (leftright.equalsIgnoreCase("left")) {
+                newH--;
+                a.setPlace(newV, newH);
+            }
+            else if (leftright.equalsIgnoreCase("right")) {
+                newH++;
+                a.setPlace(newV, newH);
+            }
+            else throw new IllegalArgumentException();
+        }
+        else throw new IllegalArgumentException();
+
+        place(a);
     }
 
     public String[][] getField() { return this.field; }
