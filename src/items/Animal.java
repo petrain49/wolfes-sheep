@@ -7,14 +7,14 @@ public class Animal {
     private int hori;
     private String species;
 
-    public Animal(int verti, int hori, String species) {
-        this.verti = verti;
-        this.hori = hori;
+    public Animal(int v, int h, String species) {
+        this.verti = v;
+        this.hori = h;
         this.species = species;
     }
 
-    public Pair<Integer, Integer> getPlace() {
-        return new Pair<Integer, Integer>(this.verti, this.hori);
+    public Coord getPlace() {
+        return new Coord(this.verti, this.hori);
     }
 
     public void setPlace(int verti, int hori) {
