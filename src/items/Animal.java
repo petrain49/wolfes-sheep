@@ -35,10 +35,7 @@ public class Animal {
         Coord pos = getPlace();
         int count = 1;
 
-        int[][] done = new int[8][8];
-        for (int i = 0; i < 8; i++) {
-            for (int j = 0; j < 8; j++) done[i][j] = 0;
-        }
+        int[][] done = field.copy();
 
         List<Coord> que = new ArrayList<>();
         que.add(pos);
@@ -48,13 +45,10 @@ public class Animal {
             for (ListIterator<Coord> iterator = que.listIterator(); iterator.hasNext();){
                 List<Coord> neighbours = field.getNeighbours(iterator.next());
                 for (Coord n : neighbours) {
-                    if (field.getField()[n.getV()][n.getH()].equals(".")) {
-                        if (done[n.getV()][n.getH()] == 0) {
-                            done[n.getV()][n.getH()] = count;
-                            iterator.add(n);
-                        }
+                    if (done[n.getV()][n.getH()] == 0) {
+                        done[n.getV()][n.getH()] = count;
+                        iterator.add(n);
                     }
-                    else done[n.getV()][n.getH()] = 255;
                 }
             }
             ++count;

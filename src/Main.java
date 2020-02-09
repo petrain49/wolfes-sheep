@@ -2,7 +2,6 @@ import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import items.*;
-;
 
 public class Main {
     public static void main(String[] args) {
@@ -27,14 +26,18 @@ public class Main {
         gameCycle(field, wolfes);
     }
 
-    public static void show(Object[][] field) {
+    public static void show(int[][] field) {
         StringBuilder res = new StringBuilder();
 
         res.append("# 0 1 2 3 4 5 6 7 #\n");
         for (int v = 0; v < 8; v++) {
             res.append(v).append(" ");
             for (int h = 0; h < 8; h++) {
-                res.append(field[v][h]).append(" ");
+                if (field[v][h] == 255) res.append("> ");
+                else if (field[v][h] == 256) res.append("@ ");
+                else if (v % 2 == 0 && h % 2 == 0) res.append(". ");
+                else if (v % 2 != 0 && h % 2 != 0) res.append(". ");
+                else res.append("  ");
             }
             res.append(v).append("\n");
         }
@@ -67,9 +70,9 @@ public class Main {
                 continue;
             }
 
-            for (Animal w: wolfes) {
-                List<Coord> moves = field.getNeighbours(w.getPlace());
-            }
+            //for (Animal w: wolfes) {
+                //List<Coord> moves = field.getNeighbours(w.getPlace());
+            //}
 
             System.out.println(sheep.path(field));
             show(field.getField());

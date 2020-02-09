@@ -3,16 +3,20 @@ package items;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * if (v % 2 == 0 && h % 2 == 0) this.field[v][h] = ".";
+ *                 else if (v % 2 != 0 && h % 2 != 0) this.field[v][h] = ".";
+ *                 else this.field[v][h] = " ";
+ */
+
 public class Field {
-    private String[][] field;
+    private int[][] field;
 
     public Field() {
-        this.field = new String[8][8];
+        this.field = new int[8][8];
         for (int v = 0; v < 8; v++) {
             for (int h = 0; h < 8; h++) {
-                if (v % 2 == 0 && h % 2 == 0) this.field[v][h] = ".";
-                else if (v % 2 != 0 && h % 2 != 0) this.field[v][h] = ".";
-                else this.field[v][h] = " ";
+                this.field[v][h] = 0;
             }
         }
     }
@@ -22,26 +26,29 @@ public class Field {
     }
 
     public void place(Animal a) {
-        String[][] field = getField();
+        int[][] field = getField();
         int v = a.getPlace().getV();
         int h = a.getPlace().getH();
 
-        if (v % 2 == 0 && h % 2 == 0) field[v][h] = a.getSpecies();
-        else if (v % 2 != 0 && h % 2 != 0) field[v][h] = a.getSpecies();
+        int num;
+        if (a.getSpecies().equals("@")) num = 256;
+        else num = 255;
+
+
+        if (v % 2 == 0 && h % 2 == 0) field[v][h] = num;
+        else if (v % 2 != 0 && h % 2 != 0) field[v][h] = num;
         else throw new IllegalArgumentException("Wrong place");
     }
 
     public void replace(Animal a) {
-        String[][] field = getField();
+        int[][] field = getField();
         int v = a.getPlace().getV();
         int h = a.getPlace().getH();
 
-        if (v % 2 == 0 && h % 2 == 0) field[v][h] = ".";
-        else if (v % 2 != 0 && h % 2 != 0) field[v][h] = ".";
-        else field[v][h] = " ";
+        field[v][h] = 0;
     }
 
-    public String[][] getField() { return this.field; }
+    public int[][] getField() { return this.field; }
 
     public boolean move(Animal a, String updown, String leftright) {
         int newV = a.getPlace().getV();
@@ -82,14 +89,11 @@ public class Field {
         return neighbours;
     }
 
-    /*public int[][] intVersion(Coord pos) {
-        int[][] version = new int[8][8];
-        for (int v = 0; v < 8; v++) {
-            for (int h = 0; h < 8; h++) {
-
-            }
+    public int[][] copy() {
+        int[][] done = new int[8][8];
+        for (int i = 0; i < 8; i++) {
+            for (int j = 0; j < 8; j++) done[i][j] = getField()[i][j];
         }
+        return done;
     }
-
-     */
 }
