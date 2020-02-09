@@ -70,12 +70,14 @@ public class Main {
                 continue;
             }
 
-            //for (Animal w: wolfes) {
-                //List<Coord> moves = field.getNeighbours(w.getPlace());
-            //}
+            for (Animal w: wolfes) {
+                List<Coord> moves = w.getPlace().getNeighbours();
+
+            }
 
             System.out.println(sheep.path(field));
             show(field.getField());
+            System.out.println(Arrays.deepToString(field.getField()));
             status = false;
         }
     }

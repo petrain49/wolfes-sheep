@@ -3,12 +3,6 @@ package items;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * if (v % 2 == 0 && h % 2 == 0) this.field[v][h] = ".";
- *                 else if (v % 2 != 0 && h % 2 != 0) this.field[v][h] = ".";
- *                 else this.field[v][h] = " ";
- */
-
 public class Field {
     private int[][] field;
 
@@ -19,10 +13,6 @@ public class Field {
                 this.field[v][h] = 0;
             }
         }
-    }
-
-    public boolean checkPos(int v, int h) {
-        return (v >= 0 && v <= 7 && h >= 0 && h <= 7); //&& field[v][h].equals("."));
     }
 
     public void place(Animal a) {
@@ -68,25 +58,12 @@ public class Field {
         }
         else return false;
 
-        if (!checkPos(newV, newH)) return false;
+        if (!Coord.checkPos(newV, newH)) return false;
 
         replace(a);
         a.setPlace(newV, newH);
         place(a);
         return true;
-    }
-
-    public List<Coord> getNeighbours(Coord pos) {
-        List<Coord> neighbours = new ArrayList<>();
-        for (int v = pos.getV() - 1; v <= pos.getV() + 1; v += 2) {
-            for (int h = pos.getH() - 1; h <= pos.getH() + 1; h += 2) {
-                if (checkPos(v, h)) {
-                    Coord neighbour = new Coord(v, h);
-                    neighbours.add(neighbour);
-                }
-            }
-        }
-        return neighbours;
     }
 
     public int[][] copy() {

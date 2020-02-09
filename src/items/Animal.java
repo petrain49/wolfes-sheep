@@ -43,7 +43,7 @@ public class Animal {
 
         while (done[0][0] == 0 || done[0][2] == 0 || done[0][4] == 0 || done[0][6] == 0) {
             for (ListIterator<Coord> iterator = que.listIterator(); iterator.hasNext();){
-                List<Coord> neighbours = field.getNeighbours(iterator.next());
+                List<Coord> neighbours = iterator.next().getNeighbours();
                 for (Coord n : neighbours) {
                     if (done[n.getV()][n.getH()] == 0) {
                         done[n.getV()][n.getH()] = count;
