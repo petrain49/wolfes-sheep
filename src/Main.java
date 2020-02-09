@@ -1,4 +1,6 @@
 import java.util.*;
+import java.util.concurrent.CopyOnWriteArrayList;
+
 import items.*;
 ;
 
@@ -25,6 +27,22 @@ public class Main {
         gameCycle(field, wolfes);
     }
 
+    public static void show(Object[][] field) {
+        StringBuilder res = new StringBuilder();
+
+        res.append("# 0 1 2 3 4 5 6 7 #\n");
+        for (int v = 0; v < 8; v++) {
+            res.append(v).append(" ");
+            for (int h = 0; h < 8; h++) {
+                res.append(field[v][h]).append(" ");
+            }
+            res.append(v).append("\n");
+        }
+        res.append("# 0 1 2 3 4 5 6 7 #");
+
+        System.out.println(res.toString());
+    }
+
     private static void gameCycle(Field field, List<Animal> wolfes) {
         /*
         Scanner pos = new Scanner(System.in);
@@ -35,7 +53,7 @@ public class Main {
         Animal sheep = new Animal(7, 3, "@");
         field.place(sheep);
 
-        field.show();
+        show(field.getField());
 
         boolean status = true;
         Scanner move = new Scanner(System.in);
@@ -43,21 +61,18 @@ public class Main {
             System.out.println("-:Next move?(up/down; left/right)");
             String updown = move.nextLine();
             String leftright = move.nextLine();
+
             if (!field.move(sheep, updown, leftright)) {
                 System.out.println("-:Something wrong...");
                 continue;
             }
 
-            //for (Animal w: wolfes)
-
-            int[][] done = new int[8][8];
-            for (int i = 0; i < 8; i++) {
-                for (int j = 0; j < 8; j++) done[i][j] = 0;
+            for (Animal w: wolfes) {
+                List<Coord> moves = field.getNeighbours(w.getPlace());
             }
 
-            System.out.println(done);
-            System.out.println(field.path(field, sheep.getPlace().getV(), sheep.getPlace().getH(), 0, done));
-            field.show();
+            System.out.println(sheep.path(field));
+            show(field.getField());
             status = false;
         }
     }
