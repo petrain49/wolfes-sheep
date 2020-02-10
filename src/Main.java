@@ -1,7 +1,14 @@
 import java.util.*;
-import java.util.concurrent.CopyOnWriteArrayList;
 
 import items.*;
+
+/**
+ * @ - овца, > - волк.
+ * Животные ходят только по точкам, овца - в любом направлении, волки - вниз.
+ * Выигрывает игрок, если добирается до верхней строки поля. Выигрывают волки, если
+ * им удается зажать игрока, окружив со всех сторон.
+ * show - оформляет поле.
+ */
 
 public class Main {
     public static void main(String[] args) {
@@ -10,20 +17,20 @@ public class Main {
         Animal wolf1 = new Animal(0, 0, ">");
         Animal wolf2 = new Animal(0, 2, ">");
         Animal wolf3 = new Animal(0, 4, ">");
-        Animal wolf4 = new Animal(1, 7, ">");
+        Animal wolf4 = new Animal(0, 6, ">");
 
-        field.place(wolf1);
-        field.place(wolf2);
-        field.place(wolf3);
-        field.place(wolf4);
+        wolf1.place(field.getField());
+        wolf2.place(field.getField());
+        wolf3.place(field.getField());
+        wolf4.place(field.getField());
 
-        List<Animal> wolfes = new ArrayList<>();
-        wolfes.add(wolf1);
-        wolfes.add(wolf2);
-        wolfes.add(wolf3);
-        wolfes.add(wolf4);
+        List<Animal> wolves = new ArrayList<>();
+        wolves.add(wolf1);
+        wolves.add(wolf2);
+        wolves.add(wolf3);
+        wolves.add(wolf4);
 
-        gameCycle(field, wolfes);
+        gameCycle(field, wolves);
     }
 
     public static void show(int[][] field) {
@@ -46,39 +53,69 @@ public class Main {
         System.out.println(res.toString());
     }
 
-    private static void gameCycle(Field field, List<Animal> wolfes) {
-        /*
-        Scanner pos = new Scanner(System.in);
-        System.out.println("-Where do we start?");
-        int v = pos.nextInt();
-        int h = pos.nextInt();
-         */
+    private static void gameCycle(Field field, List<Animal> wolves) {
         Animal sheep = new Animal(7, 3, "@");
-        field.place(sheep);
+        sheep.place(field.getField());
 
         show(field.getField());
 
-        boolean status = true;
         Scanner move = new Scanner(System.in);
+
+        boolean status = true;
         while (status) {
+            if (sheep.getPlace().getV() == 0) {
+                System.out.println("-:Win!");
+                break;
+            }
+
+            List<Coord> variants = sheep.getPlace().sheepMoves();
+            status = false;
+            for (Coord var: variants) {
+                if (field.getField()[var.getV()][var.getH()] == 0) status = true;
+            }
+            if (!status) {
+                System.out.println("-:Lose!");
+                break;
+            }
+
             System.out.println("-:Next move?(up/down; left/right)");
             String updown = move.nextLine();
             String leftright = move.nextLine();
 
-            if (!field.move(sheep, updown, leftright)) {
+            if (!sheep.userMove(field.getField(), updown, leftright)) {
                 System.out.println("-:Something wrong...");
                 continue;
             }
 
-            for (Animal w: wolfes) {
-                List<Coord> moves = w.getPlace().getNeighbours();
+            eva(field, wolves, sheep);
 
-            }
-
-            System.out.println(sheep.path(field));
             show(field.getField());
-            System.out.println(Arrays.deepToString(field.getField()));
-            status = false;
         }
+    }
+
+    private static void eva(Field field, List<Animal> wolves, Animal sheep) {
+        int[][] testField = CopyStuff.copyMatrix(field.getField());
+
+        Animal wolf = wolves.get(3);
+        int maxLen = 0;
+        Coord pos = wolf.getPlace().wolfMoves().get(0);
+
+        for (Animal w: wolves) {
+            List<Coord> variants = w.getPlace().wolfMoves();
+
+            for (Coord var: variants) {
+                CopyStuff.moveCopy(testField, w.getPlace(), var);
+                int curLen = sheep.pathToTop(testField);
+                CopyStuff.moveCopy(testField, var, w.getPlace());
+
+                if (curLen > maxLen && field.getField()[var.getV()][var.getH()] == 0)  {
+                    maxLen = curLen;
+                    wolf = w;
+                    pos = var;
+                }
+            }
+        }
+
+        wolf.animalMove(field.getField(), pos.getV(), pos.getH());
     }
 }
