@@ -80,7 +80,8 @@ public class Main {
         while (status) {
             nextMove(field, userMove, sheep);
 
-            Pair<Animal, Coord> next = eva3(1, field.getField(), sheep.getPlace(), wolves); //выбор волка и его следующего хода
+            int[][] testField = Matrix.copyMatrix(field.getField());
+            Pair<Animal, Coord> next = eva3(1, testField, sheep.getPlace(), wolves); //выбор волка и его следующего хода
             next.getKey().animalMove(field.getField(), next.getValue().getV(), next.getValue().getH()); //ход волка
 
             show(field.getField());
@@ -102,9 +103,8 @@ public class Main {
         }
     }
 
-    private static Pair<Animal, Coord> eva3(int depth, int[][] field, Coord sheepPos, List<Animal> wolves) {
+    private static Pair<Animal, Coord> eva3(int depth, int[][] testField, Coord sheepPos, List<Animal> wolves) {
         //if (depth == 0) return sheepPos;
-        int[][] testField = Matrix.copyMatrix(field);
 
         Coord bestWolfMove = wolves.get(0).getPlace();
         Coord bestSheepMove = sheepPos;
@@ -120,23 +120,25 @@ public class Main {
                 for (Coord sheepMove: sheepPos.sheepMoves(testField)) { //все ходы доступные овце
                     Matrix.moveInCopy(testField, sheepPos, sheepMove); //двигаем овцу
 
-                    if (sheepMove.pathToTop(testField) < min) { //если оценка уменьшилась после хода овцы
-                        min = sheepMove.pathToTop(testField);
-                        bestSheepMove = sheepMove;
-                    }
-                    else if (sheepMove.pathToTop(testField) > max) {
+                    if (sheepMove.pathToTop(testField) > max) {
                         max = sheepMove.pathToTop(testField);
                         bestWolfMove = wolfMove;
                         bestWolf = wolf;
                     }
+
+                    else if (sheepMove.pathToTop(testField) < min) { //если оценка уменьшилась после хода овцы
+                        min = sheepMove.pathToTop(testField);
+                        bestSheepMove = sheepMove;
+                    }
+
                     Matrix.moveInCopy(testField, sheepMove, sheepPos); //двигаем овцу обратно
                 }
                 Matrix.moveInCopy(testField, wolfMove, wolf.getPlace()); //двигаем волка обратно
             }
         }
 
-        //Matrix.moveInCopy(testField, bestWolf.getPlace(), bestWolfMove);
-        //Matrix.moveInCopy(testField, sheepPos, bestSheepMove);
+        Matrix.moveInCopy(testField, bestWolf.getPlace(), bestWolfMove);
+        Matrix.moveInCopy(testField, sheepPos, bestSheepMove);
 
         return new Pair<>(bestWolf, bestWolfMove);
     }
