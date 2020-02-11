@@ -1,12 +1,13 @@
 package items;
 
+import javafx.util.Pair;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ListIterator;
 
 /**
  * Содержит координаты и вид животного.
- * pathToTop - волновой алгоритм, возвращающий длину кратчайшего пути от животного(обычно овцы) к верхней строке поля.
  * place - размещает животное на поле.
  * replaceWithZero - убирает животное с поля.
  * animalMove - перемещает животное в заданные координаты(метод не для игрока!).
@@ -34,48 +35,16 @@ public class Animal {
         this.hori = hori;
     }
 
-    public String getSpecies() {
+    private String getSpecies() {
         return this.species;
     }
 
-    public int pathToTop(int[][] matrix) {
-        if (getPlace().getV() == 0) return 0;
-
-        int[][] done = CopyStuff.copyMatrix(matrix);
-        List<Coord> que = new ArrayList<>();
-        que.add(getPlace());
-        done[getPlace().getV()][getPlace().getH()] = 256;
-
-        int count = 1;
-        boolean finish = false;
-
-        while (!finish) {
-            finish = true;
-            for (ListIterator<Coord> iterator = que.listIterator(); iterator.hasNext();){
-                List<Coord> moves = iterator.next().sheepMoves();
-                for (Coord m : moves) {
-                    if (done[m.getV()][m.getH()] == 0) {
-                        done[m.getV()][m.getH()] = count;
-                        iterator.add(m);
-                        finish = false;
-                    }
-                }
-            }
-            ++count;
-        }
-
-        int[] top = new int[] {done[0][0], done[0][2], done[0][4], done[0][6]};
-        int min = 255;
-        for (int m: top) if (m > 0 && m < min) min = m;
-        return min;
-    }
-
     public void place(int[][] field) {
-        //int[][] matrix = field.getField();
         int v = getPlace().getV();
         int h = getPlace().getH();
 
-        if (field[v][h] != 0) throw new IllegalArgumentException();
+        if (!Matrix.checkPos(field, v, h))
+            throw new IllegalArgumentException("cant place to " + Integer.toString(v) + " " + Integer.toString(h));
 
         int num;
         if (getSpecies().equals("@")) num = 256;
@@ -87,18 +56,19 @@ public class Animal {
         else throw new IllegalArgumentException();
     }
 
-    public void replaceWithZero(int[][] field) {
-        //int[][] matrix = field.getField();
+    private void replaceWithZero(int[][] field) {
         int v = getPlace().getV();
         int h = getPlace().getH();
 
         field[v][h] = 0;
     }
 
-    public void animalMove(int[][] field, int v, int h) {
+    public boolean animalMove(int[][] field, int v, int h) {
+        if (!Matrix.checkPos(field, v, h)) return false;
         replaceWithZero(field);
         setPlace(v, h);
         place(field);
+        return true;
     }
 
     public boolean userMove(int[][] field, String updown, String leftright) {
@@ -119,10 +89,6 @@ public class Animal {
         }
         else return false;
 
-        if (!Field.checkPos(newV, newH)) return false;
-
-        animalMove(field, newV, newH);
-
-        return true;
+        return animalMove(field, newV, newH);
     }
 }

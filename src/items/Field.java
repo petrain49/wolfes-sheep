@@ -15,8 +15,4 @@ public class Field {
     public int[][] getField() { return this.field; }
 
     public void setField(int[][] field) { this.field = field; }
-
-    public static boolean checkPos(int v, int h) {
-        return (v >= 0 && v <= 7 && h >= 0 && h <= 7);
-    }
 }

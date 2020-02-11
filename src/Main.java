@@ -1,13 +1,17 @@
 import java.util.*;
 
 import items.*;
+import javafx.util.Pair;
 
 /**
  * @ - овца, > - волк.
  * Животные ходят только по точкам, овца - в любом направлении, волки - вниз.
- * Выигрывает игрок, если добирается до верхней строки поля. Выигрывают волки, если
+ * Игрок выигрывает, если добирается до верхней строки поля. Выигрывают волки, если
  * им удается зажать игрока, окружив со всех сторон.
  * show - оформляет поле.
+ * nextMove - позволяет игроку двигать овцу.
+ * gameCycle - игровой цикл, выход из цикла только после победы/поражения игрока.
+ * eva3 - алгоритм минимакса, определяет волка и его следующий ход.
  */
 
 public class Main {
@@ -33,7 +37,7 @@ public class Main {
         gameCycle(field, wolves);
     }
 
-    public static void show(int[][] field) {
+    private static void show(int[][] field) {
         StringBuilder res = new StringBuilder();
 
         res.append("# 0 1 2 3 4 5 6 7 #\n");
@@ -53,69 +57,87 @@ public class Main {
         System.out.println(res.toString());
     }
 
+    private static void nextMove(Field field, Scanner userMove, Animal sheep) {
+        System.out.println("-:Next move?(up/down; left/right)");
+        String updown = userMove.nextLine();
+        String leftright = userMove.nextLine();
+
+        if (!sheep.userMove(field.getField(), updown, leftright)) {
+            System.out.println("-:Something wrong...");
+            nextMove(field, userMove, sheep);
+        }
+    }
+
     private static void gameCycle(Field field, List<Animal> wolves) {
         Animal sheep = new Animal(7, 3, "@");
         sheep.place(field.getField());
 
         show(field.getField());
 
-        Scanner move = new Scanner(System.in);
+        Scanner userMove = new Scanner(System.in);
 
         boolean status = true;
         while (status) {
+            nextMove(field, userMove, sheep);
+
+            Pair<Animal, Coord> next = eva3(1, field.getField(), sheep.getPlace(), wolves); //выбор волка и его следующего хода
+            next.getKey().animalMove(field.getField(), next.getValue().getV(), next.getValue().getH()); //ход волка
+
+            show(field.getField());
+
             if (sheep.getPlace().getV() == 0) {
                 System.out.println("-:Win!");
                 break;
             }
 
-            List<Coord> variants = sheep.getPlace().sheepMoves();
+            List<Coord> variants = sheep.getPlace().sheepMoves(field.getField()); //возможные ходы овцы
             status = false;
-            for (Coord var: variants) {
+            for (Coord var : variants) {
                 if (field.getField()[var.getV()][var.getH()] == 0) status = true;
             }
             if (!status) {
                 System.out.println("-:Lose!");
                 break;
             }
-
-            System.out.println("-:Next move?(up/down; left/right)");
-            String updown = move.nextLine();
-            String leftright = move.nextLine();
-
-            if (!sheep.userMove(field.getField(), updown, leftright)) {
-                System.out.println("-:Something wrong...");
-                continue;
-            }
-
-            eva(field, wolves, sheep);
-
-            show(field.getField());
         }
     }
 
-    private static void eva(Field field, List<Animal> wolves, Animal sheep) {
-        int[][] testField = CopyStuff.copyMatrix(field.getField());
+    private static Pair<Animal, Coord> eva3(int depth, int[][] field, Coord sheepPos, List<Animal> wolves) {
+        //if (depth == 0) return sheepPos;
+        int[][] testField = Matrix.copyMatrix(field);
 
-        Animal wolf = wolves.get(3);
-        int maxLen = 0;
-        Coord pos = wolf.getPlace().wolfMoves().get(0);
+        Coord bestWolfMove = wolves.get(0).getPlace();
+        Coord bestSheepMove = sheepPos;
+        Animal bestWolf = wolves.get(0);
+        int min = 255;
+        int max = 0;
 
-        for (Animal w: wolves) {
-            List<Coord> variants = w.getPlace().wolfMoves();
+        for (Animal wolf: wolves){
+            for (Coord wolfMove: wolf.getPlace().wolfMoves(testField)) { //все ходы доступные текущему волку
+                Matrix.moveInCopy(testField, wolf.getPlace(), wolfMove); //двигаем волка
+                //current = sheepPos.pathToTop(testField); //оценка с текущим положением овцы
 
-            for (Coord var: variants) {
-                CopyStuff.moveCopy(testField, w.getPlace(), var);
-                int curLen = sheep.pathToTop(testField);
-                CopyStuff.moveCopy(testField, var, w.getPlace());
+                for (Coord sheepMove: sheepPos.sheepMoves(testField)) { //все ходы доступные овце
+                    Matrix.moveInCopy(testField, sheepPos, sheepMove); //двигаем овцу
 
-                if (curLen > maxLen && field.getField()[var.getV()][var.getH()] == 0)  {
-                    maxLen = curLen;
-                    wolf = w;
-                    pos = var;
+                    if (sheepMove.pathToTop(testField) < min) { //если оценка уменьшилась после хода овцы
+                        min = sheepMove.pathToTop(testField);
+                        bestSheepMove = sheepMove;
+                    }
+                    else if (sheepMove.pathToTop(testField) > max) {
+                        max = sheepMove.pathToTop(testField);
+                        bestWolfMove = wolfMove;
+                        bestWolf = wolf;
+                    }
+                    Matrix.moveInCopy(testField, sheepMove, sheepPos); //двигаем овцу обратно
                 }
+                Matrix.moveInCopy(testField, wolfMove, wolf.getPlace()); //двигаем волка обратно
             }
         }
 
-        wolf.animalMove(field.getField(), pos.getV(), pos.getH());
+        //Matrix.moveInCopy(testField, bestWolf.getPlace(), bestWolfMove);
+        //Matrix.moveInCopy(testField, sheepPos, bestSheepMove);
+
+        return new Pair<>(bestWolf, bestWolfMove);
     }
 }
