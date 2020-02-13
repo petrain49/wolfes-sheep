@@ -1,11 +1,5 @@
 package items;
 
-import javafx.util.Pair;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.ListIterator;
-
 /**
  * Содержит координаты и вид животного.
  * place - размещает животное на поле.
@@ -35,7 +29,7 @@ public class Animal {
         this.hori = hori;
     }
 
-    private String getSpecies() {
+    public String getSpecies() {
         return this.species;
     }
 

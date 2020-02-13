@@ -1,11 +1,10 @@
 import java.util.*;
 
 import items.*;
-import javafx.util.Pair;
 
 /**
  * @ - овца, > - волк.
- * Животные ходят только по точкам, овца - в любом направлении, волки - вниз.
+ * Животные ходят только по точкам: овца - в любом направлении, волки - вниз.
  * Игрок выигрывает, если добирается до верхней строки поля. Выигрывают волки, если
  * им удается зажать игрока, окружив со всех сторон.
  * show - оформляет поле.
@@ -81,8 +80,21 @@ public class Main {
             nextMove(field, userMove, sheep);
 
             int[][] testField = Matrix.copyMatrix(field.getField());
-            Pair<Animal, Coord> next = eva3(1, testField, sheep.getPlace(), wolves); //выбор волка и его следующего хода
-            next.getKey().animalMove(field.getField(), next.getValue().getV(), next.getValue().getH()); //ход волка
+            List<Coord> copyWolves = Matrix.animalListToCoordList(wolves);
+
+            Object[] nextWolfMove =
+                    eva4(3,
+                            testField,
+                            sheep.getPlace(),
+                            copyWolves,
+                            new Object[] {0, -1, sheep.getPlace()}); //выбор волка и его следующего хода
+
+            if ((Integer) nextWolfMove[0] != -1) {
+                wolves.get((Integer) nextWolfMove[1]).animalMove(
+                        field.getField(),
+                        ((Coord) nextWolfMove[2]).getV(),
+                        ((Coord) nextWolfMove[2]).getH()); //ход волка
+            }
 
             show(field.getField());
 
@@ -103,43 +115,66 @@ public class Main {
         }
     }
 
-    private static Pair<Animal, Coord> eva3(int depth, int[][] testField, Coord sheepPos, List<Animal> wolves) {
-        //if (depth == 0) return sheepPos;
+    private static Object[] eva4(int depth,
+                                 int[][] testField,
+                                 Coord sheepPos,
+                                 List<Coord> wolves,
+                                 Object[] ans) {
+        // ans[Integer evaluate, Integer wolf, Coord wolfMove] - оценка, номер волка, координаты волка
+        if (sheepPos.getV() == 0 || depth == 0) return ans;
 
-        Coord bestWolfMove = wolves.get(0).getPlace();
-        Coord bestSheepMove = sheepPos;
-        Animal bestWolf = wolves.get(0);
-        int min = 255;
-        int max = 0;
+        Coord prevWolf;
+        int evaluation = (Integer) ans[0]; //оценка
+        int bestWolf = 0;
+        Coord bestWolfMove = new Coord(-1, -1);
 
-        for (Animal wolf: wolves){
-            for (Coord wolfMove: wolf.getPlace().wolfMoves(testField)) { //все ходы доступные текущему волку
-                Matrix.moveInCopy(testField, wolf.getPlace(), wolfMove); //двигаем волка
-                //current = sheepPos.pathToTop(testField); //оценка с текущим положением овцы
+        int max = Integer.MIN_VALUE;
+        for (int curWolf = 0; curWolf < wolves.size(); curWolf++) { //для каждого волка
+            if (wolves.get(curWolf).wolfMoves(testField).isEmpty()) continue; //если ходов нет - пропускаем волка
 
-                for (Coord sheepMove: sheepPos.sheepMoves(testField)) { //все ходы доступные овце
+            prevWolf = wolves.get(curWolf); //сохраняем позицию волка
+
+            for (Coord wolfMove: wolves.get(curWolf).wolfMoves(testField)) { //для каждого хода текущего волка
+                Matrix.moveInCopy(testField, wolves.get(curWolf), wolfMove); //двигаем волка
+                wolves.set(curWolf, wolfMove); //закрепляем новые координаты волка в списке wolves
+
+                if (sheepPos.sheepMoves(testField).isEmpty()) { //если у овцы нет ходов, возвращаем оценку, волка и его координаты
+                    bestWolfMove.setVH(wolfMove.getV(), wolfMove.getH());
+                    return new Object[] {evaluation, curWolf, bestWolfMove};
+                }
+
+                int min = Integer.MAX_VALUE;
+                for (Coord sheepMove: sheepPos.sheepMoves(testField)) { //для каждого хода доступного овце
                     Matrix.moveInCopy(testField, sheepPos, sheepMove); //двигаем овцу
 
-                    if (sheepMove.pathToTop(testField) > max) {
-                        max = sheepMove.pathToTop(testField);
-                        bestWolfMove = wolfMove;
-                        bestWolf = wolf;
+                    if (depth == 1) { //оценка на глубине 1
+                        if (sheepMove.pathToTop(testField) < min) {
+                            min = sheepMove.pathToTop(testField);
+                        }
                     }
+                    else { //оценка на глубине выше 1
+                        Object[] recursion =
+                                eva4(depth - 1,
+                                        Matrix.copyMatrix(testField),
+                                        sheepMove.clone(), Coord.copyCoordList(wolves),
+                                        new Object[] {min, curWolf, wolfMove.clone()});
 
-                    else if (sheepMove.pathToTop(testField) < min) { //если оценка уменьшилась после хода овцы
-                        min = sheepMove.pathToTop(testField);
-                        bestSheepMove = sheepMove;
+                        if ((int) recursion[0] < min) min = (Integer) recursion[0];
                     }
-
                     Matrix.moveInCopy(testField, sheepMove, sheepPos); //двигаем овцу обратно
                 }
-                Matrix.moveInCopy(testField, wolfMove, wolf.getPlace()); //двигаем волка обратно
+
+                if (min > max) {
+                    max = min;
+                    bestWolf = curWolf;
+                    bestWolfMove.setVH(wolfMove.getV(), wolfMove.getH());
+                }
+
+                wolves.set(curWolf, prevWolf); //возвращаем старые координаты волку в списке wolves
+                Matrix.moveInCopy(testField, wolfMove, wolves.get(curWolf)); //двигаем волка обратно
             }
         }
-
-        Matrix.moveInCopy(testField, bestWolf.getPlace(), bestWolfMove);
-        Matrix.moveInCopy(testField, sheepPos, bestSheepMove);
-
-        return new Pair<>(bestWolf, bestWolfMove);
+        ans = new Object[] {max, bestWolf, bestWolfMove};
+        return ans;
     }
 }

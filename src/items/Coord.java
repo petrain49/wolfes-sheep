@@ -13,16 +13,31 @@ import java.util.ListIterator;
  * Методы находятся вне класса Animal для удобства работы с матрицами.
  */
 
-public class Coord {
+public class Coord implements Cloneable {
     private int v;
     private int h;
 
     public Coord(int nV, int nH) {
-        if (nV < 8 && nV > -1 && nH < 8 && nH > -1) {
-            setV(nV);
-            setH(nH);
+        setV(nV);
+        setH(nH);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == this) {
+            return true;
         }
-        else throw new IllegalArgumentException();
+        if (obj == null || obj.getClass() != this.getClass()) {
+            return false;
+        }
+
+        Coord sec = (Coord) obj;
+        return (this.getV() == sec.getV() && this.getH() == sec.getH());
+    }
+
+    @Override
+    public Coord clone()  {
+        return new Coord(this.getV(), this.getH());
     }
 
     public int getV() { return this.v; }
@@ -32,6 +47,11 @@ public class Coord {
     public int getH() { return this.h; }
 
     public void setH(int x) { this.h = x; }
+
+    public void setVH(int y, int x) {
+        this.v = y;
+        this.h = x;
+    }
 
     public List<Coord> sheepMoves(int[][] field) {
         int posV = getV();
@@ -90,5 +110,11 @@ public class Coord {
         int min = 255;
         for (int m: new int[] {done[0][0], done[0][2], done[0][4], done[0][6]}) if (m > 0 && m < min) min = m;
         return min;
+    }
+
+    public static List<Coord> copyCoordList(List<Coord> wolves) {
+        List<Coord> ans = new ArrayList<>();
+        for (Coord a: wolves) ans.add(a.clone());
+        return ans;
     }
 }

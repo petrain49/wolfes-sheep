@@ -1,13 +1,13 @@
 package items;
 
-import javafx.util.Pair;
-
+import java.util.ArrayList;
 import java.util.List;
 
 /**
  * Класс для работы с матрицами.
  * moveCopy - двигает число.
  * copyMatrix - копирует поле.
+ * wolfsCoords - превращает список объектов Animal в список объектов Coord.
  */
 
 public class Matrix {
@@ -19,7 +19,12 @@ public class Matrix {
     public static void moveInCopy(int[][] matrix, Coord start, Coord end) {
         int num = matrix[start.getV()][start.getH()];
 
-        if (!checkPos(matrix, end.getV(), end.getH())) throw new IllegalArgumentException("Wrong place");
+        if (!checkPos(matrix, end.getV(), end.getH())) {
+            int guilty = matrix[end.getV()][end.getH()];
+            throw new IllegalArgumentException("Wrong place " + num + " "
+                    + start.getV() + " " + start.getH()
+                    + " -> " + " " + guilty + " " + end.getV() + " " + end.getH());
+        }
 
         matrix[end.getV()][end.getH()] = num;
         matrix[start.getV()][start.getH()] = 0;
@@ -35,34 +40,9 @@ public class Matrix {
         return done;
     }
 
-    public static Pair<Coord, Coord> wolfBestMove(int[][] field, Coord sheep, List<Coord> wolves) {
-        int[][] testField = Matrix.copyMatrix(field);
-
-        int curLen;
-        int maxLen = 0;
-        Coord wolf = wolves.get(3);
-        Coord pos = wolf.wolfMoves(testField).get(0);
-        List<Coord> variants;
-
-        for (Coord w: wolves) {
-            if (checkPos(testField, w.getV(), w.getV())) continue;
-
-            variants = w.wolfMoves(testField); //все возможные ходы волка
-
-            for (Coord var: variants) {
-                Matrix.moveInCopy(testField, w, var);
-                curLen = sheep.pathToTop(testField);
-                Matrix.moveInCopy(testField, var, w);
-
-                if (curLen > maxLen) {
-                    maxLen = curLen;
-                    wolf = w;
-                    pos = var;
-                    //System.out.println(var.getV() + " " + var.getH());
-                    //System.out.println(maxLen);
-                }
-            }
-        }
-        return new Pair<Coord, Coord>(wolf, pos);
+    public static List<Coord> animalListToCoordList(List<Animal> wolves) {
+        List<Coord> ans = new ArrayList<>();
+        for (Animal a: wolves) ans.add(a.getPlace());
+        return ans;
     }
 }
