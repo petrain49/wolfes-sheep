@@ -5,13 +5,13 @@ package items;
  */
 public class Threesome {
     private byte evaluate;
-    private WolfCoord oldWolf;
-    private WolfCoord newWolf;
+    private WolfCoord oldWolfCoord;
+    private WolfCoord newWolfCoord;
 
-    public Threesome(byte evaluate, WolfCoord oldWolf, WolfCoord newWolf) {
+    public Threesome(byte evaluate, WolfCoord oldWolfCoord, WolfCoord newWolfCoord) {
         this.evaluate = evaluate;
-        this.oldWolf = oldWolf;
-        this.newWolf = newWolf;
+        this.oldWolfCoord = oldWolfCoord;
+        this.newWolfCoord = newWolfCoord;
     }
 
     public byte getEvaluate() {
@@ -23,18 +23,18 @@ public class Threesome {
     }
 
     public WolfCoord getOldWolfCoord() {
-        return this.oldWolf;
+        return this.oldWolfCoord;
     }
 
-    public void setOldWolf(WolfCoord oldWolf) {
-        this.oldWolf = oldWolf;
+    public void setOldWolfCoord(WolfCoord oldWolfCoord) {
+        this.oldWolfCoord = oldWolfCoord;
     }
 
     public WolfCoord getNewWolfCoord() {
-        return this.newWolf;
+        return this.newWolfCoord;
     }
 
-    public void setNewWolf(WolfCoord newWolf) {
-        this.newWolf = newWolf;
+    public void setNewWolfCoord(WolfCoord newWolfCoord) {
+        this.newWolfCoord = newWolfCoord;
     }
 }

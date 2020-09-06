@@ -2,6 +2,9 @@ package items;
 
 import java.util.List;
 
+/**
+ * Класс оценки, реализует алгоритм минимакс глубиной 3.
+ */
 public class Eva04 {
     public static Threesome eva04(byte depth,
                           Field field,

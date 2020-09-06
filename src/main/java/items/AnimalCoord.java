@@ -5,7 +5,7 @@ import java.util.List;
 
 /**
  * Класс животного.
- * getSpecies - возвращает тип
+ * getSpecies - возвращает тип(по умолчанию false)
  * moves - список доступных ходов.
  * move - двигает объект на игровом поле.
  * place - размещает объект на игровом поле.
@@ -22,15 +22,8 @@ public class AnimalCoord implements Cloneable {
 
     @Override
     public boolean equals(Object obj) {
-        if (obj == this) {
-            return true;
-        }
-        if (obj == null || obj.getClass() != this.getClass()) {
-            return false;
-        }
-
-        AnimalCoord sec = (AnimalCoord) obj;
-        return (this.getV() == sec.getV() && this.getH() == sec.getH());
+        return (this.getV() == ((AnimalCoord) obj).getV()
+                && this.getH() == ((AnimalCoord) obj).getH());
     }
 
     @Override
@@ -97,8 +90,8 @@ public class AnimalCoord implements Cloneable {
             throw new IllegalArgumentException("cant place to " + v + " " + h);
 
         byte num;
-        if (getSpecies()) num = 125;
-        else num = 120;
+        if (getSpecies()) num = 125; //sheep
+        else num = 120; //wolf
 
         if ((v % 2 == 0 && h % 2 == 0) || (v % 2 != 0 && h % 2 != 0)) {
             field.setCoordValue(num, v, h);

@@ -21,16 +21,8 @@ public class SheepCoord extends AnimalCoord implements Cloneable {
 
     @Override
     public boolean equals(Object obj) {
-        if (obj == this) {
-            return true;
-        }
-        if (obj == null || obj.getClass() != this.getClass()) {
-            return false;
-        }
-
-        SheepCoord sec = (SheepCoord) obj;
-        return (this.getV() == sec.getV()
-                && this.getH() == sec.getH());
+        return (this.getV() == ((SheepCoord) obj).getV()
+                && this.getH() == ((SheepCoord) obj).getH());
     }
 
     @Override

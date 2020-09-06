@@ -18,16 +18,8 @@ public class WolfCoord extends AnimalCoord implements Cloneable {
 
     @Override
     public boolean equals(Object obj) {
-        if (obj == this) {
-            return true;
-        }
-        if (obj == null || obj.getClass() != this.getClass()) {
-            return false;
-        }
-
-        WolfCoord sec = (WolfCoord) obj;
-        return (this.getV() == sec.getV()
-                && this.getH() == sec.getH());
+        return (this.getV() == ((WolfCoord) obj).getV()
+                && this.getH() == ((WolfCoord) obj).getH());
     }
 
     @Override
